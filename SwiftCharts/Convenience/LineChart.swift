@@ -13,18 +13,12 @@ open class LineChart: Chart {
     public typealias ChartLine = (chartPoints: [(Double, Double)], color: UIColor)
     
     // Initializer for single line
-    public convenience init(frame: CGRect, chartConfig: ChartConfigXY, xTitle: String, yTitle: String, line: ChartLine) {
-        self.init(frame: frame, chartConfig: chartConfig, xTitle: xTitle, yTitle: yTitle, lines: [line])
+    public convenience init(frame: CGRect, chartConfig: ChartConfigXY, xTitle: String, yTitle: String, line: ChartLine, xModel: ChartAxisModel, yModel: ChartAxisModel) {
+        self.init(frame: frame, chartConfig: chartConfig, xTitle: xTitle, yTitle: yTitle, lines: [line], xModel: xModel, yModel: yModel)
     }
     
     // Initializer for multiple lines
-    public init(frame: CGRect, chartConfig: ChartConfigXY, xTitle: String, yTitle: String, lines: [ChartLine]) {
-        
-        let xValues = stride(from: chartConfig.xAxisConfig.from, through: chartConfig.xAxisConfig.to, by: chartConfig.xAxisConfig.by).map{ChartAxisValueDouble($0)}
-        let yValues = stride(from: chartConfig.yAxisConfig.from, through: chartConfig.yAxisConfig.to, by: chartConfig.yAxisConfig.by).map{ChartAxisValueDouble($0)}
-        
-        let xModel = ChartAxisModel(axisValues: xValues, axisTitleLabel: ChartAxisLabel(text: xTitle, settings: chartConfig.xAxisLabelSettings))
-        let yModel = ChartAxisModel(axisValues: yValues, axisTitleLabel: ChartAxisLabel(text: yTitle, settings: chartConfig.yAxisLabelSettings.defaultVertical()))
+    public init(frame: CGRect, chartConfig: ChartConfigXY, xTitle: String, yTitle: String, lines: [ChartLine], xModel: ChartAxisModel, yModel: ChartAxisModel) {
         let coordsSpace = ChartCoordsSpaceLeftBottomSingleAxis(chartSettings: chartConfig.chartSettings, chartFrame: frame, xModel: xModel, yModel: yModel)
         let (xAxisLayer, yAxisLayer, innerFrame) = (coordsSpace.xAxisLayer, coordsSpace.yAxisLayer, coordsSpace.chartInnerFrame)
         
@@ -37,10 +31,8 @@ open class LineChart: Chart {
             return ChartPointsLineLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, lineModels: [lineModel])
         }
         
-        let guidelinesLayer = GuidelinesDefaultLayerGenerator.generateOpt(xAxisLayer: xAxisLayer, yAxisLayer: yAxisLayer, guidelinesConfig: chartConfig.guidelinesConfig)
-        
         let view = ChartBaseView(frame: frame)
-        let layers: [ChartLayer] = [xAxisLayer, yAxisLayer] + (guidelinesLayer.map{[$0]} ?? []) + lineLayers
+        let layers: [ChartLayer] = [xAxisLayer, yAxisLayer] + lineLayers
         
         super.init(
             view: view,
@@ -53,5 +45,4 @@ open class LineChart: Chart {
     public required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }
